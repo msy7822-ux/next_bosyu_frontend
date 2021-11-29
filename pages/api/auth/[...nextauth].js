@@ -12,6 +12,13 @@ export default NextAuth({
   ],
 
   callbacks: {
+    redirect({ url, baseUrl }) {
+      console.log(url);
+      console.log(baseUrl);
+      // 認証後のリダイレクト先を決定する
+      // return '/topPage';
+      return url; // redirect to '/'
+    },
     async jwt(token, user, account, profile, isNewUser) {
       if (account?.accessToken) {
         token.accessToken = account.accessToken;
