@@ -4,15 +4,25 @@ import {
   InMemoryCache,
   ApolloProvider,
 } from "@apollo/client";
-import { useSession } from "next-auth/client";
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
+import { ChakraProvider } from "@chakra-ui/react";
+import { useSession, Provider  } from "next-auth/client";
 import axios from 'axios';
 import { useEffect } from 'react';
-
-import { transitions, positions, Provider as AlertProvider } from 'react-alert'
+import { positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic';
 
+// React Query Client(キャッシュをデフォルトで有効にする)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      cacheTime: 1000 * 60 * 60 * 24, // 24 hours
+    },
+  },
+});
+
 // ApolloClient
-const client = new ApolloClient({
+const apolloClient = new ApolloClient({
   uri: `${process.env.NEXT_PUBLIC_BACKEND_URL}/graphql`,
   cache: new InMemoryCache()
 });
@@ -20,7 +30,7 @@ const client = new ApolloClient({
 function MyApp({ Component, pageProps }) {
   // session情報
   const [session, sessionLoading] = useSession();
-  console.log('session user is ', session?.user);
+  console.log('session user is', session);
 
   // React Alert Options
   const options = {
@@ -36,11 +46,17 @@ function MyApp({ Component, pageProps }) {
   if (sessionLoading) return <p>Loading...</p>;
 
   return (
-    <ApolloProvider client={client}>
-      <AlertProvider template={AlertTemplate} {...options}>
-        <Component {...pageProps} />
-      </AlertProvider>
-    </ApolloProvider>
+    <QueryClientProvider client={queryClient}>
+      <ApolloProvider client={apolloClient}>
+        <Provider session={session}>
+          <ChakraProvider>
+            <AlertProvider template={AlertTemplate} {...options}>
+              <Component {...pageProps} />
+            </AlertProvider>
+          </ChakraProvider>
+        </Provider>
+      </ApolloProvider>
+    </QueryClientProvider>
   )
 }
 

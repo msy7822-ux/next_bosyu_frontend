@@ -14,7 +14,7 @@ export default NextAuth({
 
   callbacks: {
     redirect() {
-      return '/';
+      return '/offers';
     },
     async jwt(token, user, account, profile, isNewUser) {
       if (account?.accessToken) {
