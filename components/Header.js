@@ -10,6 +10,8 @@ import {
   Image,
   Spacer,
   Link,
+  Button,
+  HStack,
 } from '@chakra-ui/react';
 
 export const Header = () => {
@@ -38,6 +40,16 @@ export const Header = () => {
               </MenuList>
             </Portal>
           </Menu>
+        }
+
+        {!isMobileScreen &&
+          <>
+            <HStack color="#FFF" spacing="1rem" mr="1rem">
+              <Button bg="#53AF5C">募集をする</Button>
+              <Button bg="#53AF5C">マイページ</Button>
+              <Button bg="#53AF5C">検索を行う</Button>
+            </HStack>
+          </>
         }
       </Flex>
     </>

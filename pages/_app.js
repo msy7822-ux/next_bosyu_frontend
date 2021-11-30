@@ -30,7 +30,6 @@ const apolloClient = new ApolloClient({
 function MyApp({ Component, pageProps }) {
   // session情報
   const [session, sessionLoading] = useSession();
-  console.log('session user is', session);
 
   // React Alert Options
   const options = {
