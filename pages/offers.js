@@ -1,17 +1,20 @@
 // import gql from 'graphql-tag';
 // import { useQuery } from '@apollo/client';
 import { useQuery } from 'react-query';
+import React from 'react';
 import { Layout } from '../components/Layout';
-import { Box, Text, Link } from "@chakra-ui/react"
+import { Box, Text, Link, Grid, Flex, SimpleGrid } from "@chakra-ui/react"
 import { useSession } from 'next-auth/client';
 import axios from 'axios';
 import { Offers } from '../components/Offers/Offers';
 import { Header } from '../components/Header';
+import { useMediaQuery } from 'react-responsive';
 
-const apiUrl = "http://localhost:3000/api/offers";
+const apiUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/offers`;
 
 const OffersList = (props) => {
   const [session, loading] = useSession();
+  const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
   console.log('ログイン情報', session);
 
   const fetchOffers = async () => {
@@ -31,17 +34,33 @@ const OffersList = (props) => {
       <Header />
       <Layout>
           <Box mb="1.5rem"></Box>
-          {data && data.offers &&
+          {/* デスクトップ用の表示 */}
+          <Grid templateColumns="repeat(4, 1fr)" gap={15} w="100%" justifyItems="center" px="0" mx="0" alignContent="center">
+            {!isMobileScreen && data && data.offers &&
+              data.offers.map((offer, key) => {
+                return (
+                  <React.Fragment key={key}>
+
+                    <Offers {...offer} />
+                    {/* <Link href='/'>
+                      <a>
+                        <Offers {...offer} />
+                      </a>
+                    </Link> */}
+                  </React.Fragment>
+                );
+              })
+            }
+          </Grid>
+
+          {/* モバイル用の表示 */}
+          {isMobileScreen && data && data.offers &&
             data.offers.map((offer, key) => {
               return (
-                <Box key={key}>
+                <React.Fragment key={key}>
+
                   <Offers {...offer} />
-                  {/* <Link href='/'>
-                    <a>
-                      <Offers {...offer} />
-                    </a>
-                  </Link> */}
-                </Box>
+                </React.Fragment>
               );
             })
           }
