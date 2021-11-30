@@ -5,22 +5,15 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuIcon,
-  MenuCommand,
-  MenuDivider,
   Portal,
-  Flex, Image, Spacer, Box, Link
+  Flex,
+  Image,
+  Spacer,
+  Link,
 } from '@chakra-ui/react';
 
 export const Header = () => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
-  const click = () => {
-    console.log('クリック時の処理を走らせる');
-  };
-
   return (
     <>
       <Flex h="7rem" bg="#9FCFAF" w="100%">
