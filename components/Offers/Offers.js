@@ -2,7 +2,7 @@ import { Box, Text, Image, Button } from "@chakra-ui/react";
 import { useMediaQuery } from 'react-responsive';
 import { GiTalk } from 'react-icons/gi';
 
-export const Offers = ({ id, name, title, content, imageUrl,tags }) => {
+export const Offers = ({ title, content }) => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
 
   return (
