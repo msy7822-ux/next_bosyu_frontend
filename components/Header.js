@@ -14,11 +14,12 @@ import {
   HStack,
 } from '@chakra-ui/react';
 
-export const Header = () => {
+export const Header = ({ isError }) => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
   return (
     <>
-      <Flex h="7rem" bg="#9FCFAF" w="100%">
+      {!isError &&
+        <Flex h="7rem" bg="#9FCFAF" w="100%">
         <Link href='/'>
           <a>
             <Image outline="none" pl="3" pt="5" maxH="100%" maxW="80%" src="/nextBosyuLogo.png" alt="next bosyu logo" />
@@ -51,7 +52,8 @@ export const Header = () => {
             </HStack>
           </>
         }
-      </Flex>
+      </Flex>      
+      }
     </>
   );
 };

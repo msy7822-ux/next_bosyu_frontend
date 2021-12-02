@@ -1,5 +1,5 @@
 import { Box, Text, Image, Button } from "@chakra-ui/react"
-import { signIn } from "next-auth/client";
+import { signIn, signOut } from "next-auth/client";
 import { useMediaQuery } from 'react-responsive';
 import { BsTwitter } from 'react-icons/bs';
 
@@ -14,6 +14,8 @@ export default function Home() {
           <Image mt="30" w="100%" maxW="100%" h="auto" src="/nextBosyuLogo.png" alt="next bosyu logo" />
           <Text color="#FFFFFF" mb="50">Twitterで登録して、今すぐBosyuをしてみましょう！</Text>
           <Box className="btn-container" m="auto">
+          {/* TODO:ここのボタン及び、signOut関数は削除予定 */}
+          <Button onClick={() => signOut()}>signOut</Button>
 
             {/* デスクトップスクリーン用 */}
             {!isMobileScreen &&

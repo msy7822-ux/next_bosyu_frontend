@@ -1,27 +1,21 @@
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
-// import { useQuery } from 'react-query';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Layout } from '../components/Layout';
 import { Box, Text, Link, Grid, Flex, SimpleGrid } from "@chakra-ui/react"
 import { useSession } from 'next-auth/client';
-import axios from 'axios';
 import { Offers } from '../components/Offers/Offers';
 import { Header } from '../components/Header';
 import { useMediaQuery } from 'react-responsive';
-
-// const apiUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/offers`;
+import { useToast } from '@chakra-ui/toast';
+import { useRouter } from 'next/router';
 
 const OffersList = (props) => {
-  const [session, loading] = useSession();
+  const toast = useToast();
+  const router = useRouter();
+  const session = useSession();
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
   console.log('ログイン情報', session);
-
-  // const fetchOffers = async () => {
-  //   return await axios.get(apiUrl).then((res) => {
-  //     return res.data;
-  //   })
-  // }
 
   // offerの内容で必要なデータ => [id、 掲載者名、　掲載者画像、募集内容、募集タイトル、募集のタグ（あれば）]
   const fetchJobOffers = gql`
@@ -41,15 +35,27 @@ const OffersList = (props) => {
     }
   `;
 
-  const { data, isLoading, error } = useQuery(fetchJobOffers);
-  console.log('全ての求人票', data?.jobOfferSlips);
+  const { data, isLoading, error } = useQuery(fetchJobOffers, {
+    errorPolicy: 'all',
+    onError: (error) => {
+      toast({
+        title: 'エラーが発生しました。',
+        description: 'ログインが確認できないことが考えられます。',
+        status: 'error',
+        position: 'top',
+        duration: 9000,
+        isClosable: true,
+      })
 
-  if (loading) return <p>Loading...</p>;
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>エラーの内容は、{error}</p>;
+      router.push('/');
+    }}
+  );
+
+  console.log('全ての求人票', data?.jobOfferSlips);
+  if (!error && isLoading) return <p>Loading...</p>;
   return (
     <>
-      <Header />
+      <Header isError={!!error} />
       <Layout>
           <Box mb="1.5rem"></Box>
           {/* デスクトップ用の表示 */}

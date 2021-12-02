@@ -21,26 +21,37 @@ const queryClient = new QueryClient({
   },
 });
 
-// ApolloClient
-const apolloClient = new ApolloClient({
-  uri: `${process.env.NEXT_PUBLIC_BACKEND_URL}/graphql`,
-  cache: new InMemoryCache()
-});
+const defaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'cache-and-network',
+    errorPolicy: 'ignore',
+  },
+  query: {
+    fetchPolicy: 'cache-and-network',
+    errorPolicy: 'all',
+  },
+  mutate: {
+    errorPolicy: 'all',
+  },
+}
 
 function MyApp({ Component, pageProps }) {
   // session情報
   const [session, sessionLoading] = useSession();
+  console.log(session);
+
+  // ApolloClient
+  const apolloClient = new ApolloClient({
+    uri: `${process.env.NEXT_PUBLIC_BACKEND_URL}/graphql?session=${!!session}&token=${session?.accessToken}`,
+    cache: new InMemoryCache(),
+    defaultOptions: defaultOptions,
+  });
 
   // React Alert Options
   const options = {
     timeout: 5000,
     position: positions.TOP_CENTER,
   }
-
-  // 下記のようなログイン情報の送信方法ではなく、各リクエストにログインしているかどうかみたいなログイン情報を加えてあげることでセッションの確認するでもいいかも
-  useEffect(() => {
-    axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, { user: session?.user })
-  }, [session, sessionLoading]);
 
   if (sessionLoading) return <p>Loading...</p>;
 
