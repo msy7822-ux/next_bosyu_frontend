@@ -1,91 +1,110 @@
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Layout } from '../components/Layout';
-import { Box, Text, Link, Grid, Flex, SimpleGrid } from "@chakra-ui/react"
-import { useSession } from 'next-auth/client';
+import { Box, Button, Text, Link, Grid, Flex, SimpleGrid } from "@chakra-ui/react"
 import { Offers } from '../components/Offers/Offers';
 import { Header } from '../components/Header';
 import { useMediaQuery } from 'react-responsive';
-import { useToast } from '@chakra-ui/toast';
-import { useRouter } from 'next/router';
+import { AiFillPlusCircle } from 'react-icons/ai';
+// import { useSession } from 'next-auth/client';
 
 const OffersList = (props) => {
-  const toast = useToast();
-  const router = useRouter();
-  const session = useSession();
+  // const [session] = useSession();
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
-  console.log('ログイン情報', session);
+  const [string, setString] = useState(null);
+  const [offers, setOffers] = useState([]);
+  const moreButton = useRef();
 
-  // offerの内容で必要なデータ => [id、 掲載者名、　掲載者画像、募集内容、募集タイトル、募集のタグ（あれば）]
   const fetchJobOffers = gql`
     query {
-      jobOfferSlips {
-        id,
-        title,
-        content,
-        corporate {
-          id,
-          user {
+      jobOfferSlips(first: 16, after: "${string}") {
+        pageInfo {
+          hasNextPage,
+          endCursor,
+          startCursor,
+          hasPreviousPage
+        },
+        edges {
+          node {
             id,
-            name
+            title,
+            content,
+            corporate {
+              id,
+              user {
+                id,
+                name
+              }
+            }    
           }
         }
       }
     }
   `;
 
-  const { data, isLoading, error } = useQuery(fetchJobOffers, {
-    errorPolicy: 'all',
-    onError: (error) => {
-      toast({
-        title: 'エラーが発生しました。',
-        description: 'ログインが確認できないことが考えられます。',
-        status: 'error',
-        position: 'top',
-        duration: 9000,
-        isClosable: true,
-      })
+  const fatchMoreOffer = () => {
+    setString(data?.jobOfferSlips?.pageInfo?.endCursor);
+    refetch();
+  }
 
-      router.push('/');
-    }}
-  );
-
-  console.log('全ての求人票', data?.jobOfferSlips);
+  const { data, isLoading, error, refetch } = useQuery(fetchJobOffers, {
+    onCompleted: (res) => {
+      if (res?.jobOfferSlips?.edges) {
+        const offerIds = offers.map((offer) => { return offer.node.id });
+        if(offerIds.includes(res?.jobOfferSlips?.edges[0].node.id)) { // 誤って同じフェッチデータが保存されるを未然に防ぐ
+          return;
+        }
+        setOffers([...offers, res?.jobOfferSlips?.edges].flat())
+      }
+    }
+  });
+  
+  // if (session === null) return <p>ログインしてください。</p>;
   if (!error && isLoading) return <p>Loading...</p>;
+
   return (
     <>
-      <Header isError={!!error} />
+      <Header isError={!!error} buttonTitle="募集をする" />
       <Layout>
           <Box mb="1.5rem"></Box>
           {/* デスクトップ用の表示 */}
           <Grid templateColumns="repeat(4, 1fr)" gap={15} w="100%" justifyItems="center" px="0" mx="0" alignContent="center">
             {!isMobileScreen && data && data.jobOfferSlips &&
-              data.jobOfferSlips.map((offer, key) => {
+              data.jobOfferSlips?.edges.map((offers, key) => {
                 return (
                   <React.Fragment key={key}>
-                    <Offers {...offer} />
-                    {/* <Link href='/'>
-                      <a>
-                        <Offers {...offer} />
-                      </a>
-                    </Link> */}
+                    <Offers {...offers?.node} />
                   </React.Fragment>
                 );
               })
             }
           </Grid>
 
-          {/* モバイル用の表示 */}
-          {isMobileScreen && data && data.jobOfferSlips &&
-            data.jobOfferSlips.map((offer, key) => {
+          {isMobileScreen && offers !== [] &&        
+            offers.map((offer, key) => {
               return (
                 <React.Fragment key={key}>
-                  <Offers {...offer} />
+                  <Offers {...offer?.node} />
                 </React.Fragment>
               );
             })
           }
+          
+          <Box w="100%" textAlign="center" my="1rem">
+            <Button
+              ref={moreButton}
+              disabled={!data?.jobOfferSlips?.pageInfo?.hasNextPage}
+              onClick={() => {
+                fatchMoreOffer();
+                moreButton.current.style.background = "#53AF5C"
+              }}
+              bg="#53AF5C"
+              color="#FFF"
+            >
+              もっとみる &nbsp; <AiFillPlusCircle size="20" />
+            </Button>
+          </Box>
       </Layout>
     </>
   )

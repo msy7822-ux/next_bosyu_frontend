@@ -2,7 +2,8 @@ import { Box, Text, Image, Button } from "@chakra-ui/react";
 import { useMediaQuery } from 'react-responsive';
 import { GiTalk } from 'react-icons/gi';
 
-export const Offers = ({ title, content }) => {
+// export const Offers = ({ title, content }) => {
+export const Offers = (props) => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
 
   return (
@@ -18,14 +19,14 @@ export const Offers = ({ title, content }) => {
             borderWidth="1px"
             borderRadius="lg"
           >
-            <Text color="#FFF" pb="1rem" fontWeight="700">{title}</Text>
+            <Text color="#FFF" pb="1rem" fontWeight="700">{props.title}</Text>
             <hr color="#FFF" />
             <Box
               bg="#E1F8D9"
               mt="1.5rem"
               borderRadius="10"
             >
-              <Text color="#818181" p="1rem">{content}</Text>
+              <Text color="#818181" p="1rem">{props.content}</Text>
             </Box>
             <Button
               bg="#53AF5C"
@@ -56,8 +57,10 @@ export const Offers = ({ title, content }) => {
               pb="1rem"
               textAlign="center"
             >
-              {title}
+              {props.title}
             </Text>
+            {/* <Text>name: {props.corporate.user.name}</Text> */}
+            <Text>name: {props.id}</Text>
             <hr color="#FFF" />
             <Box
               mt="1rem"
@@ -66,7 +69,7 @@ export const Offers = ({ title, content }) => {
               border="none"
               borderRadius="30"
             >
-              <Text color="#818181">{content}</Text>
+              <Text color="#818181">{props.content}</Text>
             </Box>
             <Button
               px="2.5rem"

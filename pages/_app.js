@@ -7,10 +7,10 @@ import {
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
 import { ChakraProvider } from "@chakra-ui/react";
 import { useSession, Provider  } from "next-auth/client";
-import axios from 'axios';
-import { useEffect } from 'react';
 import { positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic';
+import axios from 'axios';
+import { useEffect } from 'react';
 
 // React Query Client(キャッシュをデフォルトで有効にする)
 const queryClient = new QueryClient({
@@ -38,7 +38,7 @@ const defaultOptions = {
 function MyApp({ Component, pageProps }) {
   // session情報
   const [session, sessionLoading] = useSession();
-  console.log(session);
+  console.log('ログイン情報', session);
 
   // ApolloClient
   const apolloClient = new ApolloClient({
