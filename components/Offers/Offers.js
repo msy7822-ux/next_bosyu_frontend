@@ -1,10 +1,33 @@
-import { Box, Text, Image, Button } from "@chakra-ui/react";
+import { Box, Text, Button, Tag } from "@chakra-ui/react";
 import { useMediaQuery } from 'react-responsive';
 import { GiTalk } from 'react-icons/gi';
+import { useRouter } from "next/router";
+import { useRef } from "react";
 
-// export const Offers = ({ title, content }) => {
 export const Offers = (props) => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
+  const router = useRouter();
+  const hearButton = useRef();
+  const isMypage = router.pathname === '/mypage';
+  const createdDate = props.createdAt
+  const date = new Date(createdDate);
+
+  const formatDate = (dt) => {
+    var y = dt.getFullYear();
+    var m = ('00' + (dt.getMonth()+1)).slice(-2);
+    var d = ('00' + dt.getDate()).slice(-2);
+    return (y + '-' + m + '-' + d);
+  }
+
+  const tags = (propsTag) => {
+    if (propsTag === null || propsTag === undefined) {
+      return;
+    }
+
+    let newPropsTag = propsTag.slice(1);
+    newPropsTag = newPropsTag.split('#');
+    return newPropsTag;
+  };
 
   return (
     <>
@@ -48,7 +71,7 @@ export const Offers = (props) => {
             p="1.5rem"
             bg="#9FCFAF"
             borderWidth="1px"
-            borderRadius="30"
+            borderRadius="10"
           >
             <Text
               color="#FFF"
@@ -59,28 +82,47 @@ export const Offers = (props) => {
             >
               {props.title}
             </Text>
-            {/* <Text>name: {props.corporate.user.name}</Text> */}
-            <Text>name: {props.id}</Text>
+            {/* <Text>offer_id: {props.id}</Text> */}
             <hr color="#FFF" />
             <Box
               mt="1rem"
               p="1rem"
               bg="#E1F8D9"
               border="none"
-              borderRadius="30"
+              borderRadius="10"
             >
               <Text color="#818181">{props.content}</Text>
             </Box>
-            <Button
-              px="2.5rem"
-              py="1rem"
-              bg="#53AF5C"
-              mt="2rem"
-              borderRadius="20"
-              color="#FFF"
-            >
-              話を聞いてみる &nbsp;&nbsp; <GiTalk size="20" />
-            </Button>
+            {/* タグを表示する */}
+            <Box textAlign="left">
+              {
+                tags(props?.tag)?.map((tag, key) => {
+                  return (
+                    <>
+                      <Tag key={key} variant='solid' colorScheme='teal' m="1">#{tag}</Tag>
+                    </>
+                  );
+                })
+              }
+            </Box>
+            <Text mt="1rem" color="#FFF">募集掲載日: {formatDate(date)}</Text>
+            {/* マイページでは、「話を聞いてみる」ボタンを表示にしない */}
+            {!isMypage &&
+              <Button
+                ref={hearButton}
+                px="2.5rem"
+                py="1rem"
+                bg="#53AF5C"
+                mt="1rem"
+                borderRadius="20"
+                color="#FFF"
+                onClick={() => {
+                  hearButton.current.style.background = "#53AF5C"
+                }}
+                >
+                話を聞いてみる &nbsp;&nbsp; <GiTalk size="20" />
+              </Button>
+            }
           </Box>
           <br />
         </>
