@@ -1,5 +1,5 @@
 import { GiHamburgerMenu } from 'react-icons/gi';
-import { FaBeer } from 'react-icons/fa';
+import { BsCheckLg } from 'react-icons/bs';
 import { useMediaQuery } from 'react-responsive';
 import {
   Menu,
@@ -18,44 +18,93 @@ import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/client';
 import { useRef } from 'react';
 
-export const Header = ({ isError, buttonTitle }) => {
+export const Header = ({ isError, buttonTitles }) => {
   const headerImage = useRef();
   const [session] = useSession();
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
   const router = useRouter();
-  // クリック後の遷移先を設定
-  const setButtonRouter = () => {
-    if (buttonTitle === '募集をする') {
-      router.push('/createOffer');
-    } else if (buttonTitle === '募集一覧') {
-      router.push('/offers');
-    };
-  }
+  const isMypage = router.pathname === '/mypage';
+  
   return (
     <>
+      {/* エラーがあれば、ヘッダーを表示しない */}
       {!isError &&
-        <Flex h="7rem" bg="#9FCFAF" w="100%">
-        <Box cursor="pointer" ref={headerImage} onClick={() => router.push('/')}>
-          <Image pl="3" pt="5" maxH="100%" maxW="80%" src="/nextBosyuLogo.png" alt="next bosyu logo" />
+        <Flex
+          h="7rem"
+          bg="#9FCFAF"
+          w="100%"
+        >
+        <Box
+          cursor="pointer"
+          ref={headerImage}
+          onClick={() => router.push('/')}
+        >
+          <Image
+            pl="3"
+            pt="5"
+            maxH="100%"
+            maxW="80%"
+            src="/nextBosyuLogo.png"
+            alt="next bosyu logo"
+          />
         </Box>
 
         <Spacer />
         {/* モバイル用 */}
         {isMobileScreen &&
-          <Menu closeOnSelect={true} autoSelect={false}>
+          <Menu
+            closeOnSelect={true}
+            autoSelect={false}
+          >
             <MenuButton pr={5}>
               <GiHamburgerMenu size="40" color="#FFFFFF" />
             </MenuButton>
             <Portal>
-              {/* <MenuList bg="#9FCFAF" color="#FFF" border="4px solid #53AF5C"> */}
-              <MenuList bg="#9FCFAF" color="#FFF" border="2px solid #8B8B8B">
-                <MenuItem icon={<FaBeer />} borderBottom="1px solid #FFF" fontWeight="800" onClick={setButtonRouter}>
-                  {buttonTitle}
+              <MenuList
+                bg="#9FCFAF"
+                color="#FFF"
+                border="2px solid #8B8B8B"
+              >
+                {buttonTitles?.includes('募集一覧') &&
+                  <MenuItem
+                  icon={<BsCheckLg />}
+                  fontWeight="800"
+                  onClick={() => router.push('/offers')}
+                >
+                  募集一覧
+                  <hr color="#FFF" />
                 </MenuItem>
-                {session &&
-                  <MenuItem icon={<FaBeer />} borderBottom="1px solid #FFF" fontWeight="800">マイページ</MenuItem>
                 }
-                <MenuItem icon={<FaBeer />} fontWeight="800">検索を行う</MenuItem>
+                {session && buttonTitles?.includes('募集をする') &&
+                  <MenuItem
+                    icon={<BsCheckLg />}
+                    fontWeight="800"
+                    onClick={() => router.push('/createOffer')}
+                  >
+                  募集をする
+                  <hr color="#FFF" />
+                </MenuItem>
+                }
+                {session && !isMypage &&
+                  <MenuItem
+                    icon={<BsCheckLg />}
+                    fontWeight="800"
+                    onClick={() => router.push('/mypage')}
+                  >
+                    マイページ
+                    <hr color="#FFF" />
+                  </MenuItem>
+                }
+                {buttonTitles.includes('募集を探す') &&
+                  <MenuItem
+                    icon={<BsCheckLg />}
+                    fontWeight="800"
+                    onClick={() => router.push('/search')}
+                  >
+                    募集を探す
+                    <hr color="#FFF" />
+                  </MenuItem>
+                }
               </MenuList>
             </Portal>
           </Menu>
@@ -65,11 +114,11 @@ export const Header = ({ isError, buttonTitle }) => {
         {!isMobileScreen &&
           <>
             <HStack color="#FFF" spacing="1rem" mr="1rem">
-              <Button onClick={setButtonRouter} bg="#53AF5C">
-                {buttonTitle}
-              </Button>
+              {/* <Button onClick={setButtonRouter} bg="#53AF5C"> */}
+                {/* {buttonTitle} */}
+              {/* </Button> */}
               <Button bg="#53AF5C">マイページ</Button>
-              <Button bg="#53AF5C">検索を行う</Button>
+              <Button onClick={() => router.push('/search')} bg="#53AF5C">検索を行う</Button>
             </HStack>
           </>
         }

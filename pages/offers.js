@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
 import React, { useState, useRef } from 'react';
 import { Layout } from '../components/Layout';
-import { Box, Button, Text, Link, Grid, Flex, SimpleGrid } from "@chakra-ui/react"
+import { Box, Button, Grid } from "@chakra-ui/react"
 import { Offers } from '../components/Offers/Offers';
 import { Header } from '../components/Header';
 import { useMediaQuery } from 'react-responsive';
@@ -30,6 +30,8 @@ const OffersList = (props) => {
             id,
             title,
             content,
+            createdAt,
+            tag,
             corporate {
               id,
               user {
@@ -65,7 +67,7 @@ const OffersList = (props) => {
 
   return (
     <>
-      <Header isError={!!error} buttonTitle="募集をする" />
+      <Header isError={!!error} buttonTitles={["募集をする", "募集を探す"]} />
       <Layout>
           <Box mb="1.5rem"></Box>
           {/* デスクトップ用の表示 */}
@@ -81,6 +83,7 @@ const OffersList = (props) => {
             }
           </Grid>
 
+          {/* モバイル用の表示 */}
           {isMobileScreen && offers !== [] &&        
             offers.map((offer, key) => {
               return (

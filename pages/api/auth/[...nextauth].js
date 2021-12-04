@@ -3,13 +3,11 @@ import NextAuth from "next-auth";
 import TwitterProvider from 'next-auth/providers/twitter';
 
 export default NextAuth({
-  // Configure one or more authentication providers
   providers: [
     TwitterProvider({
       clientId: process.env.NEXT_PUBLIC_TWITTER_API_KEY,
       clientSecret: process.env.NEXT_PUBLIC_TWITTER_API_SECRET,
     }),
-    // ...add more providers here
   ],
   debug: true,
 
@@ -17,16 +15,25 @@ export default NextAuth({
     redirect() {
       return '/offers';
     },
-    async jwt(token, user, account, profile, isNewUser) {
+    jwt(token, user, account, profile, isNewUser) {
       if (account?.accessToken) {
         token.accessToken = account.accessToken;
+        token.user_profile = profile;
       }
       return token;
     },
     session(session, token) {
-      console.log("callback session is ", session);
       const user = session?.user
-      axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, { user: { name: user?.name, email: user?.email, imageUrl: user?.image, token: token.accessToken  } })
+      axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
+        user: {
+          name: user?.name,
+          email: user?.email,
+          imageUrl: user?.image,
+          token: token.accessToken,
+          display_name: token?.user?.screen_name
+        }
+      })
+      session.screenName = token?.user?.screen_name;
       session.accessToken = token.accessToken;
       return session;
     },

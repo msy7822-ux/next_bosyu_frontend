@@ -1,5 +1,5 @@
 import { useMediaQuery } from 'react-responsive';
-import { Box, Text, Button, Textarea, Input, Flex, useToast } from '@chakra-ui/react';
+import { Box, Text, Button, Textarea, Input, useToast } from '@chakra-ui/react';
 import { Header } from '../components/Header';
 import { Layout } from '../components/Layout';
 import { useState } from 'react';
@@ -10,6 +10,8 @@ const CreateOffers = (props) => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
   const [session] = useSession();
   const toast = useToast();
+
+  console.log(session.accessToken);
   
   const [tagMsg, setTagMsg] = useState();
   const [title, setTitle] = useState();
@@ -25,6 +27,7 @@ const CreateOffers = (props) => {
           content: "${content}"
           tag: "${tag}"
           logined: ${!!session}
+          token: "${session.accessToken}"
         }
       ){
         jobOfferSlip {
@@ -58,20 +61,35 @@ const CreateOffers = (props) => {
 
   const handleChangeTags = (event) => {
     const value = event.target.value
+    let tag = value.replace(/\s+/g, '');
+    tag = tag.replace(/＃/g, '#');
 
-    if (value !== '' && value !== undefined && value.slice(0, 1) !== '#' && value.indexOf('#') === -1) {
-      setTagMsg('タグに半角のシャープ（#）を使用してください。');
+    if (value !== '' && value !== undefined && tag.slice(0, 1) !== '#') {
+      setTagMsg('タグにシャープ（#）を使用してください。');
     }
 
-    if (value !== '' && value !== undefined &&  value.slice(0, 1) === '#' && value.indexOf('#') !== -1) {
+    if (value !== '' && value !== undefined && tag.indexOf('#') === -1) {
+      setTagMsg('タグに（#）を使用してください。');
+    }
+
+    if (value !== '' && value !== undefined &&  tag.slice(0, 1) === '#' && tag.indexOf('#') !== -1) {
       setTagMsg(null);
     }
 
-    console.log(value.replace(/\s+/g, ''));
-    setTag(value.replace(/\s+/g, ''));
+    setTag(tag);
   }
 
   const handleSubmit = (event) => {
+    if (!session) {
+      toast({
+        title: '募集を行うには、ログインを行ってください。',
+        status: 'error',
+        position: 'top',
+        duration: 9000,
+        isClosable: true,
+      });
+      return;
+    }
     // event.preventDefault();
     const invalidCondition = title === '' || content === '' || title === undefined || content === undefined;
     if (invalidCondition) {
@@ -102,9 +120,7 @@ const CreateOffers = (props) => {
     console.log(title);
     console.log(content);
     console.log(tag);
-    // titleとcontentがないときの分岐も必要
-    // const tag = 
-    // タグ周りは一旦保留
+
     createOffer().then((res) => {
       console.log('mutation result ', res.data?.createJobOfferSlip);
       toast({
@@ -132,7 +148,7 @@ const CreateOffers = (props) => {
     <>
       {isMobileScreen &&
       <>
-        <Header buttonTitle="募集一覧" />
+        <Header buttonTitles={["募集一覧", "募集を探す"]} />
         <Layout>
           <Box
             mt="1.5rem"
@@ -165,7 +181,7 @@ const CreateOffers = (props) => {
             />
             <Text mt="1rem" border="none" color="#9B9B9B" pb="2" >タグの追加<br />（※例のように入力してください。）</Text>
             <Text color="#FF4A4A">{tagMsg ? tagMsg : ''}</Text>
-            <Input onChange={handleChangeTags} mr="2" bg="#FFF" placeholder="例： #タグ1 #タグ２" />
+            <Input onChange={handleChangeTags} mr="2" bg="#FFF" color="#2D8DFF" placeholder="例： #タグ1 #タグ２" />
             <Button
               onClick={handleSubmit}
               px="2.5rem"

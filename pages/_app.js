@@ -7,6 +7,7 @@ import {
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
 import { ChakraProvider } from "@chakra-ui/react";
 import { useSession, Provider  } from "next-auth/client";
+// import { useSession, SessionProvider  } from "next-auth/react";
 import { positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic';
 import axios from 'axios';
@@ -35,6 +36,7 @@ const defaultOptions = {
   },
 }
 
+// function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 function MyApp({ Component, pageProps }) {
   // session情報
   const [session, sessionLoading] = useSession();
@@ -58,6 +60,7 @@ function MyApp({ Component, pageProps }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={apolloClient}>
+        {/* <SessionProvider session={session}> */}
         <Provider session={session}>
           <ChakraProvider>
             <AlertProvider template={AlertTemplate} {...options}>
@@ -65,6 +68,7 @@ function MyApp({ Component, pageProps }) {
             </AlertProvider>
           </ChakraProvider>
         </Provider>
+        {/* </SessionProvider> */}
       </ApolloProvider>
     </QueryClientProvider>
   )
