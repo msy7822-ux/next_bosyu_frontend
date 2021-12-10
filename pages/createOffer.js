@@ -2,23 +2,22 @@ import { useMediaQuery } from 'react-responsive';
 import { Box, Text, Button, Textarea, Input, useToast } from '@chakra-ui/react';
 import { Header } from '../components/Header';
 import { Layout } from '../components/Layout';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { useSession } from 'next-auth/client';
 
 const CreateOffers = (props) => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
   const [session] = useSession();
-  const toast = useToast();
-
-  console.log(session.accessToken);
-  
+  const toast = useToast();  
   const [tagMsg, setTagMsg] = useState();
   const [title, setTitle] = useState();
   const [content, setContent] = useState();
   const [tag, setTag] = useState(null);
+  const inputTitleRef = useRef();
+  const inputContentRef = useRef();
+  const inputTagRef = useRef();
 
-  // title: "${title}"
   const CREATE_OFFER = gql`
     mutation {
       createJobOfferSlip(
@@ -90,7 +89,7 @@ const CreateOffers = (props) => {
       });
       return;
     }
-    // event.preventDefault();
+
     const invalidCondition = title === '' || content === '' || title === undefined || content === undefined;
     if (invalidCondition) {
       toast({
@@ -117,10 +116,6 @@ const CreateOffers = (props) => {
       return;
     }
 
-    console.log(title);
-    console.log(content);
-    console.log(tag);
-
     createOffer().then((res) => {
       console.log('mutation result ', res.data?.createJobOfferSlip);
       toast({
@@ -130,6 +125,10 @@ const CreateOffers = (props) => {
         duration: 9000,
         isClosable: true,
       });
+
+      inputTitleRef.current.value = '';
+      inputContentRef.current.value = '';
+      inputTagRef.current.value = '';  
     }).catch((err) => {
       console.log('エラーの内容: ', err);
       toast({
@@ -154,34 +153,52 @@ const CreateOffers = (props) => {
             mt="1.5rem"
             textAlign="center"
             p="1.5rem"
-            bg="#9FCFAF"
             borderWidth="1px"
-            borderRadius="30"
+            borderRadius="4"
           >
             <Text
               border="none"
+              fontWeight="bold"
               color="#9B9B9B"
               pb="2"
             >
-              ※募集タイトル<br />(フォームをサイズ変更できます。)
+              ※募集タイトル
             </Text>
             <Textarea
+              ref={inputTitleRef}
               onChange={handleChangeTitle}
               bg="#FFF"
-              placeholder="例：TypeScriptを使いこなせるエンジニアを募集！！"
+              placeholder="例: TypeScriptを使いこなせるエンジニアを募集!!"
             />
-            <Text mt="1rem" color="#9B9B9B" pb="2" >※募集内容<br />(フォームをサイズ変更できます。)</Text>
+            <Text
+              mt="1rem"
+              color="#9B9B9B"
+              pb="2"
+              fontWeight="bold"
+            >
+              ※募集内容
+            </Text>
             <Textarea
+              borderRadius="4"
+              ref={inputContentRef}
               onChange={handleChangeContent}
-              border="none"
+              // border="none"
               h="150"
               size="sm"
               bg="#FFF"
-              placeholder="例：弊社では、アーキテクチャをSPAにし、さらにTypeScriptの導入もしましたが、社内にTypeScriptに強いエンジニアがいません。そんな弊社のTypeScriptプロジェクトを引っ張ってくれる強いエンジニアを募集します！！！"
+              placeholder="例: 弊社では、アーキテクチャをSPAにし、さらにTypeScriptの導入もしましたが、社内にTypeScriptに強いエンジニアがいません。そんな弊社のTypeScriptプロジェクトを引っ張ってくれる強いエンジニアを募集します!!"
             />
-            <Text mt="1rem" border="none" color="#9B9B9B" pb="2" >タグの追加<br />（※例のように入力してください。）</Text>
+            <Text
+              mt="1rem"
+              border="none"
+              color="#9B9B9B"
+              pb="2"
+              fontWeight="bold"
+            >
+              タグの追加<br />（※例のように入力してください。）
+            </Text>
             <Text color="#FF4A4A">{tagMsg ? tagMsg : ''}</Text>
-            <Input onChange={handleChangeTags} mr="2" bg="#FFF" color="#2D8DFF" placeholder="例： #タグ1 #タグ２" />
+            <Input ref={inputTagRef} onChange={handleChangeTags} mr="2" bg="#FFF" color="#2D8DFF" placeholder="例: #タグ1 #タグ２" />
             <Button
               onClick={handleSubmit}
               px="2.5rem"

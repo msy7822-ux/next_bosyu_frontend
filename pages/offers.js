@@ -1,24 +1,24 @@
 import gql from 'graphql-tag';
 import { useQuery } from '@apollo/client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout } from '../components/Layout';
-import { Box, Button, Grid } from "@chakra-ui/react"
+import { Box, Button } from "@chakra-ui/react"
 import { Offers } from '../components/Offers/Offers';
 import { Header } from '../components/Header';
 import { useMediaQuery } from 'react-responsive';
 import { AiFillPlusCircle } from 'react-icons/ai';
-// import { useSession } from 'next-auth/client';
+import { useInView } from 'react-intersection-observer';
 
 const OffersList = (props) => {
-  // const [session] = useSession();
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
-  const [string, setString] = useState(null);
+  const [cursor, setCursor] = useState(null);
   const [offers, setOffers] = useState([]);
-  const moreButton = useRef();
+  const [hasNextPage, setHasNextPage] = useState(false)
+  const {ref, inView} = useInView();
 
   const fetchJobOffers = gql`
     query {
-      jobOfferSlips(first: 16, after: "${string}") {
+      jobOfferSlips(first: 5, after: "${cursor === undefined ? null : cursor}") {
         pageInfo {
           hasNextPage,
           endCursor,
@@ -36,7 +36,8 @@ const OffersList = (props) => {
               id,
               user {
                 id,
-                name
+                name,
+                token
               }
             }    
           }
@@ -45,69 +46,66 @@ const OffersList = (props) => {
     }
   `;
 
-  const fatchMoreOffer = () => {
-    setString(data?.jobOfferSlips?.pageInfo?.endCursor);
+  const fetchMoreOffer = () => {
+    setCursor(data?.jobOfferSlips?.pageInfo?.endCursor);
     refetch();
-  }
+  };
+
+  useEffect(() => {
+    if (inView) {
+      fetchMoreOffer();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView]);
 
   const { data, isLoading, error, refetch } = useQuery(fetchJobOffers, {
     onCompleted: (res) => {
       if (res?.jobOfferSlips?.edges) {
-        const offerIds = offers.map((offer) => { return offer.node.id });
-        if(offerIds.includes(res?.jobOfferSlips?.edges[0].node.id)) { // 誤って同じフェッチデータが保存されるを未然に防ぐ
+        const offerIds = offers.map((offer) => { return offer?.node?.id });
+        if(offerIds.includes(res?.jobOfferSlips?.edges[0]?.node?.id)) { // 誤って同じフェッチデータが保存されるを未然に防ぐ
           return;
         }
-        setOffers([...offers, res?.jobOfferSlips?.edges].flat())
+        setOffers([...offers, res?.jobOfferSlips?.edges].flat());
+        setHasNextPage(res?.jobOfferSlips?.pageInfo?.hasNextPage);
       }
     }
   });
-  
-  // if (session === null) return <p>ログインしてください。</p>;
+
   if (!error && isLoading) return <p>Loading...</p>;
 
   return (
     <>
-      <Header isError={!!error} buttonTitles={["募集をする", "募集を探す"]} />
+      <Header buttonTitles={["募集をする", "募集を探す"]} />
       <Layout>
-          <Box mb="1.5rem"></Box>
-          {/* デスクトップ用の表示 */}
-          <Grid templateColumns="repeat(4, 1fr)" gap={15} w="100%" justifyItems="center" px="0" mx="0" alignContent="center">
-            {!isMobileScreen && data && data.jobOfferSlips &&
-              data.jobOfferSlips?.edges.map((offers, key) => {
-                return (
-                  <React.Fragment key={key}>
-                    <Offers {...offers?.node} />
-                  </React.Fragment>
-                );
-              })
-            }
-          </Grid>
-
           {/* モバイル用の表示 */}
-          {isMobileScreen && offers !== [] &&        
-            offers.map((offer, key) => {
-              return (
-                <React.Fragment key={key}>
-                  <Offers {...offer?.node} />
-                </React.Fragment>
-              );
-            })
+          {isMobileScreen && offers !== [] &&
+            <>     
+              {
+                offers.map((offer, key) => {
+                  return (
+                    <React.Fragment key={key}>
+                      <Offers offer={offer?.node} recruiterToken={offer?.node?.corporate.user.token} />
+                    </React.Fragment>
+                  );
+                })
+              }
+
+              <Box w="100%" textAlign="center" mb="5rem">
+                <Button
+                  ref={ref}
+                  border="1px solid #818181"
+                  bg="#FFF"
+                  color="#818181"
+                  disabled={!hasNextPage}
+                  onClick={() => {
+                    fetchMoreOffer();
+                  }}
+                >
+                  もっとみる &nbsp; <AiFillPlusCircle size="20" />
+                </Button>
+              </Box>
+            </>
           }
-          
-          <Box w="100%" textAlign="center" my="1rem">
-            <Button
-              ref={moreButton}
-              disabled={!data?.jobOfferSlips?.pageInfo?.hasNextPage}
-              onClick={() => {
-                fatchMoreOffer();
-                moreButton.current.style.background = "#53AF5C"
-              }}
-              bg="#53AF5C"
-              color="#FFF"
-            >
-              もっとみる &nbsp; <AiFillPlusCircle size="20" />
-            </Button>
-          </Box>
       </Layout>
     </>
   )

@@ -1,5 +1,6 @@
-import { Container } from '@chakra-ui/react'
-import Head from 'next/head'
+import { Container } from '@chakra-ui/react';
+import Head from 'next/head';
+import { BottomNavComponent } from './BottomNavComponent';
 
 export const Layout = ({ children }) => {
   return (
@@ -11,6 +12,7 @@ export const Layout = ({ children }) => {
       </Head>
 
       {children}
+      <BottomNavComponent />
     </Container>
   );
 };

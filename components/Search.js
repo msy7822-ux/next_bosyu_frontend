@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 import { gql, useLazyQuery } from '@apollo/client';
 import { ImCross } from 'react-icons/im';
 import { FaSearch } from 'react-icons/fa';
-import { MdTextSnippet } from 'react-icons/md';
 import { Offers } from "./Offers/Offers";
 import {
   Modal,
@@ -29,7 +28,14 @@ export const Search = (props) => {
         title,
         content,
         createdAt,
-        tag
+        tag,
+        corporate {
+          id,
+          user {
+            id,
+            name
+          }
+        }
       }
     }
   `;
@@ -67,7 +73,8 @@ export const Search = (props) => {
         検索を行う
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay bg="#CFCFCF" />
+        {/* <ModalOverlay bg="#CFCFCF" /> */}
+        <ModalOverlay />
         <ModalContent m="3" mt="5rem">
           <Box
             bg="#FAF6F6"
@@ -131,7 +138,6 @@ export const Search = (props) => {
               bg="#E7E7E7"
               color="#757575"
             >
-              {/* <MdTextSnippet /> */}
               <Text ml="1rem">※{data?.searchJobOfferSlips?.length}件の募集が見つかりました。</Text>
             </Box>
             {data?.searchJobOfferSlips.map((offer, key) => {
