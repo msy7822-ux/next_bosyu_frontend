@@ -4,14 +4,31 @@ import {
   InMemoryCache,
   ApolloProvider,
 } from "@apollo/client";
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
+import { QueryClient, QueryClientProvider } from 'react-query'
 import { ChakraProvider } from "@chakra-ui/react";
 import { useSession, Provider  } from "next-auth/client";
-// import { useSession, SessionProvider  } from "next-auth/react";
 import { positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic';
-import axios from 'axios';
-import { useEffect } from 'react';
+import { ThemeProvider } from '@emotion/react';
+import { createTheme } from '@mui/material/styles';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      'Jockey',
+      'Donau',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),}
+  });
 
 // React Query Client(キャッシュをデフォルトで有効にする)
 const queryClient = new QueryClient({
@@ -40,7 +57,7 @@ const defaultOptions = {
 function MyApp({ Component, pageProps }) {
   // session情報
   const [session, sessionLoading] = useSession();
-  console.log('ログイン情報', session);
+  // console.log('ログイン情報', session);
 
   // ApolloClient
   const apolloClient = new ApolloClient({
@@ -62,11 +79,13 @@ function MyApp({ Component, pageProps }) {
       <ApolloProvider client={apolloClient}>
         {/* <SessionProvider session={session}> */}
         <Provider session={session}>
-          <ChakraProvider>
-            <AlertProvider template={AlertTemplate} {...options}>
-              <Component {...pageProps} />
-            </AlertProvider>
-          </ChakraProvider>
+          <ThemeProvider theme={theme}>
+            <ChakraProvider>
+              <AlertProvider template={AlertTemplate} {...options}>
+                <Component {...pageProps} />
+              </AlertProvider>
+            </ChakraProvider>
+          </ThemeProvider>
         </Provider>
         {/* </SessionProvider> */}
       </ApolloProvider>

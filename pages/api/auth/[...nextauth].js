@@ -15,26 +15,24 @@ export default NextAuth({
     redirect() {
       return '/offers';
     },
-    jwt(token, user, account, profile, isNewUser) {
-      if (account?.accessToken) {
-        token.accessToken = account.accessToken;
-        token.user_profile = profile;
-      }
-      return token;
-    },
-    session(session, token) {
-      const user = session?.user
+
+    session(session, user) {
+      const sessionUser = session?.user
+
+      console.log('session user = ', user?.sub);
+
       axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
         user: {
-          name: user?.name,
-          email: user?.email,
-          imageUrl: user?.image,
-          token: token.accessToken,
-          display_name: token?.user?.screen_name
+          name: sessionUser?.name,
+          email: sessionUser?.email,
+          imageUrl: sessionUser?.image,
+          // token: token?.accessToken,
+          token: user?.sub,
         }
-      })
-      session.screenName = token?.user?.screen_name;
-      session.accessToken = token.accessToken;
+      });
+
+      // session.accessToken = token?.accessToken;
+      session.accessToken = user?.sub;
       return session;
     },
   },
