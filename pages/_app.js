@@ -57,7 +57,7 @@ const defaultOptions = {
 function MyApp({ Component, pageProps }) {
   // session情報
   const [session, sessionLoading] = useSession();
-  // console.log('ログイン情報', session);
+  console.log('ログイン情報', session);
 
   // ApolloClient
   const apolloClient = new ApolloClient({

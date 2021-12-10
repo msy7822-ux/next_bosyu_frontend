@@ -2,7 +2,6 @@ import { Select } from '@chakra-ui/react'
 
 export const ChatSelect = ({ setTab }) => {
   const handleChageTab = (event) => {
-    console.log(event.target.value);
     setTab(event.target.value);
   }
   return (

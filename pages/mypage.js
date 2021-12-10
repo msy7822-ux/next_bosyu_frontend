@@ -11,7 +11,6 @@ import { BsTwitter } from 'react-icons/bs';
 const MyPage = (props) => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
   const [session] = useSession();
-  console.log(session?.accessToken);
 
   // const FETCH_USER_INFO = gql`
   //   query {

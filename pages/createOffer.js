@@ -43,7 +43,6 @@ const CreateOffers = (props) => {
   const handleChangeTitle = (event) => {
     let value = event.target.value
     if (!!event.target.value.match(/\n/)) {
-      console.log(event.target.value.replace(/\n/g, "/s"));
       value = value.replace(/\n/g, "/s")
     }
     setTitle(value);
@@ -52,7 +51,6 @@ const CreateOffers = (props) => {
   const handleChangeContent = (event) => {
     let value = event.target.value
     if (!!event.target.value.match(/\n/)) {
-      console.log(event.target.value.replace(/\n/g, "/s"));
       value = value.replace(/\n/g, "/s")
     }
     setContent(value);

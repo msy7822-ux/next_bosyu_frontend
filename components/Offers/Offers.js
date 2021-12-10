@@ -16,7 +16,6 @@ import {
 import { useSession } from "next-auth/client";
 
 export const Offers = ({offer, recruiterToken}) => {
-  console.log(offer);
   const [session] = useSession();
   const isMyBosyu = recruiterToken === session?.accessToken
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });

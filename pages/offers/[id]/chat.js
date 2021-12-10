@@ -52,8 +52,6 @@ const ApplicantChat = (props) => {
           const chatrooms = sn.docs.filter((doc) => {
             // TODO 一人の応募者と一人の募集者とのトークに限定する
             const applicant_condition = doc.data().offer_id === offer_id && recruiter_id === doc.data().recruiter_id && session?.accessToken === doc.data().applicant_token
-
-            console.log('recruiter user id ', userId);
             const recruiter_condition = doc.data().offer_id === offer_id && doc.data().recruiter_id === userId
 
             return applicant_condition || recruiter_condition;
