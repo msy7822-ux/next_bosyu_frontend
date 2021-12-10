@@ -16,6 +16,14 @@ export default NextAuth({
       return '/offers';
     },
 
+    async jwt(token, user, account, profile, isNewUser) {
+      // Add access_token to the token right after signin
+      if (account?.accessToken) {
+        token.accessToken = account.accessToken
+      }
+      return token
+    },
+
     session(session, user) {
       const sessionUser = session?.user
 
