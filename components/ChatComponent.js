@@ -26,7 +26,7 @@ export const ChatComponent = ({ message, chatroom, loginUserId }) => {
           p="2"
           borderBottom="1px solid #E5E5E5"
         >
-          <Text>{message.message}</Text>
+          <Text>{message.message.replace(/[/s]/g, "\n")}</Text>
           <Box fontSize="80%" color="#A4A4A4">{formatDate(createdDate)}</Box>
         </Box>
       }
@@ -42,7 +42,7 @@ export const ChatComponent = ({ message, chatroom, loginUserId }) => {
             <BsFillPersonFill color="#6A6A6A" size="30" />
           </Box>
           <Box>
-            <Text>{message.message}</Text>
+            <Text>{message.message.replace(/[/s]/g, "\n")}</Text>
             <Text fontSize="80%" color="#A4A4A4">{formatDate(createdDate)}</Text>
           </Box>
       </Flex>
