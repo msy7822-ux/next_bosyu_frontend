@@ -11,16 +11,6 @@ import { BsTwitter } from 'react-icons/bs';
 const MyPage = (props) => {
   const isMobileScreen = useMediaQuery({ query: '(max-width: 560px)' });
   const [session] = useSession();
-
-  // const FETCH_USER_INFO = gql`
-  //   query {
-  //     user(token: "${session?.accessToken}") {
-  //       id,
-  //       name,
-  //       email
-  //     }
-  //   }
-  // `
   const FETCH_USER_INFO = gql`
     query {
       user(token: "${session?.accessToken}") {
@@ -35,6 +25,7 @@ const MyPage = (props) => {
             title,
             content,
             tag,
+            displayed,
             createdAt
           }
         }
@@ -99,7 +90,9 @@ const MyPage = (props) => {
                   data.user.corporate?.jobOfferSlips.map((offer, key) => {
                     return (
                       <Box key={key}>
-                        <Offers offer={offer} recruiterToken={session?.accessToken} user={data?.user} />
+                        {offer?.displayed &&
+                          <Offers offer={offer} recruiterToken={session?.accessToken} user={data?.user} />
+                        }
                       </Box>
                     );
                   })
